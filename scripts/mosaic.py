@@ -1,7 +1,27 @@
+from modules.images import read_info_from_image
 from modules import script_callbacks
 import gradio as gr
 
 from scripts.mos_processing import process_mask
+
+def img2input(img) -> str:
+    if img is None:
+        return gr.HTML.update(value='')
+
+    info, _ = read_info_from_image(img)
+    if info is None:
+        return gr.HTML.update(value='')
+
+    info = info.strip().replace('\n', '<br>')
+
+    return gr.HTML.update(value=f'''
+        <h5>Infotext</h5>
+        <p style="
+        background: var(--panel-background-fill);
+        padding: 1em;
+        border-radius: 1em;
+        ">{info}</p>
+    ''')
 
 def mos_ui():
     """Main Script for UI Tab"""
@@ -39,7 +59,7 @@ def mos_ui():
 
 
         with gr.Row():
-            with gr.Column():
+            with gr.Column(scale=1):
                 directions = gr.CheckboxGroup(['up', 'right', 'down', 'left'], value='right', label='Directions', elem_id='mos_dir')
                 method = gr.Radio(['stretch', 'mirror'], value='stretch', label='Method', elem_id='mos_mod')
 
@@ -55,16 +75,20 @@ def mos_ui():
 
                 method.change(on_radio_change, method, stretch_config)
 
-            with gr.Column():
-                expansion_X = gr.Slider(label='Horizontal Expand %', minimum=0.05, maximum=1.00, step=0.05, value=0.50)
-                expansion_Y = gr.Slider(label='Vertical Expand %', minimum=0.05, maximum=1.00, step=0.05, value=0.50)
+            with gr.Column(scale=2):
+                with gr.Row():
+                    with gr.Column():
+                        expansion_X = gr.Slider(label='Horizontal Expand %', minimum=0.05, maximum=1.00, step=0.05, value=0.50)
+                        expansion_Y = gr.Slider(label='Vertical Expand %', minimum=0.05, maximum=1.00, step=0.05, value=0.50)
 
-            with gr.Column():
-                steps_S = gr.Slider(label='Short-Side Tile Count', minimum=1, maximum=6, step=1, value=3)
-                steps_L = gr.Slider(label='Long-Side Tile Count', minimum=12, maximum=72, step=12, value=24)
-                overlap = gr.Slider(label='Mask Overlap %', minimum=0.05, maximum=0.50, step=0.05, value=0.15)
+                    with gr.Column():
+                        steps_S = gr.Slider(label='Short-Side Tile Count', minimum=1, maximum=6, step=1, value=3)
+                        steps_L = gr.Slider(label='Long-Side Tile Count', minimum=12, maximum=72, step=12, value=24)
+                        overlap = gr.Slider(label='Mask Overlap %', minimum=0.05, maximum=0.50, step=0.05, value=0.15)
 
-            with gr.Column():
+                infotext = gr.HTML()
+
+            with gr.Column(scale=1):
                 proc_btn = gr.Button('Process Mosaic', variant='primary')
                 send_btn = gr.Button('Send to Inpaint', variant='primary')
 
@@ -75,6 +99,8 @@ def mos_ui():
 
                 gr.Markdown('<p align="right"><sub>v2.2 - Feb.06</sub></p>', elem_id='mos_ver')
 
+
+        input_img.change(img2input, input_img, infotext)
 
         proc_btn.click(
             process_mask,
