@@ -1,3 +1,9 @@
+### v2.4 - 2024 Feb.29
+- Added Mosaic **Inpaint** Script
+
+### v2.3 - 2024 Feb.07
+- Added **Infotext**
+
 ### v2.2 - 2024 Feb.06
 - Added **Send to ControlNet**
 

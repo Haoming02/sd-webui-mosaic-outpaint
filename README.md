@@ -22,7 +22,7 @@ New <b>Mosaic</b> UI Tab
 9. Set the resolution to **Resize by** `1.0`
 10. Press **Generate** !
 
-#### ControlNet Inpaint
+#### ControlNet
 5. Alternatively: choose either **txt2img** or **img2img** tab, set the unit of ControlNet,
 then press **Send to ControlNet**
     - Due to ControlNet's custom editor, the source image may not show up. Simply click the `Clear` button *(eraser icon)* to refresh it.
@@ -64,3 +64,9 @@ Mosaic Pattern
 <img src="samples/output.jpg" width=512><br>
 Final Output
 </p>
+
+## Mosaic Inpaint
+Now also comes with a **Script** for generating mosaic patterns within **Inpaint** masks. 
+*(Can also be used in **img2img** to convert the entire image into mosaic patterns before the generation.)*
+
+> See this [thread](https://github.com/Haoming02/sd-webui-mosaic-outpaint/issues/2) for some examples
