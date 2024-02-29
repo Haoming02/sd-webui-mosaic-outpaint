@@ -70,3 +70,7 @@ Now also comes with a **Script** for generating mosaic patterns within **Inpaint
 *(Can also be used in **img2img** to convert the entire image into mosaic patterns before the generation.)*
 
 > See this [thread](https://github.com/Haoming02/sd-webui-mosaic-outpaint/issues/2) for some examples
+
+<hr>
+
+**Note:** If you have installed this extension before *(in the **Extensions** tab, it shows the **Branch** of this extension to be `main`)*, please uninstall and reinstall again *(so that it shows `master` instead)*!
