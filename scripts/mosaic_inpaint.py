@@ -22,8 +22,12 @@ class Mosaic(scripts.Script):
         if not is_img2img:
             return None
 
-        steps_H = gr.Slider(label="Horizontal Tile Count", minimum=8, maximum=64, step=8, value=16)
-        steps_V = gr.Slider(label="Vertical Tile Count", minimum=8, maximum=64, step=8, value=16)
+        steps_H = gr.Slider(
+            label="Horizontal Tile Count", minimum=8, maximum=64, step=8, value=16
+        )
+        steps_V = gr.Slider(
+            label="Vertical Tile Count", minimum=8, maximum=64, step=8, value=16
+        )
 
         blur = gr.Slider(
             label="Mask Overlaps",
@@ -66,7 +70,7 @@ class Mosaic(scripts.Script):
                 min_y, min_x = np.min(non_zero_pixels, axis=1)
                 max_y, max_x = np.max(non_zero_pixels, axis=1)
             except ValueError:
-                print('\n\n[Warning] Inpaint with no Mask...\n\n')
+                print("\n\n[Warning] Inpaint with no Mask...\n\n")
                 return process_images(p)
 
             exp_box = (

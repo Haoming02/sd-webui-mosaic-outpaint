@@ -1,13 +1,25 @@
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter
 
 
 def _mosaic(img, X, Y) -> Image:
     """Helper function to generate the tiles"""
-    width, height = img.size
     downsample = img.resize((X, Y), Image.Resampling.BOX)
-    return downsample.resize((width, height), Image.Resampling.NEAREST)
+    return downsample.resize(img.size, Image.Resampling.NEAREST)
 
-def generate_mosaic(input_img:Image, UP:bool, RIGHT:bool, DOWN:bool, LEFT:bool, width:int, height:int, exp_x:int, exp_y:int, steps_S:int, steps_L:int) -> Image:
+
+def generate_mosaic(
+    input_img: Image,
+    UP: bool,
+    RIGHT: bool,
+    DOWN: bool,
+    LEFT: bool,
+    width: int,
+    height: int,
+    exp_x: int,
+    exp_y: int,
+    steps_S: int,
+    steps_L: int,
+) -> Image:
     """Convert the expanded border(s) into mosaic tiles"""
     new_width, new_height = input_img.size
     steps_C = int((steps_S + steps_L) / 2)
@@ -55,13 +67,23 @@ def generate_mosaic(input_img:Image, UP:bool, RIGHT:bool, DOWN:bool, LEFT:bool, 
     return input_img
 
 
-def preprocess_image(input_img:Image, UP:bool, RIGHT:bool, DOWN:bool, LEFT:bool, width:int, height:int, exp_x:int, exp_y:int) -> Image:
+def preprocess_image(
+    input_img: Image,
+    UP: bool,
+    RIGHT: bool,
+    DOWN: bool,
+    LEFT: bool,
+    width: int,
+    height: int,
+    exp_x: int,
+    exp_y: int,
+) -> Image:
     """Mirror the input image in the specified direction(s)"""
     H = sum([RIGHT, LEFT])
     V = sum([UP, DOWN])
 
-    canvas = Image.new('RGB', (width * (H + 1), height * (V + 1)))
-    temp = Image.new('RGB', (width * (H + 1), height))
+    canvas = Image.new("RGB", (width * (H + 1), height * (V + 1)))
+    temp = Image.new("RGB", (width * (H + 1), height))
 
     if H > 0:
         FLIP_H = ImageOps.mirror(input_img)
@@ -99,9 +121,20 @@ def preprocess_image(input_img:Image, UP:bool, RIGHT:bool, DOWN:bool, LEFT:bool,
     return canvas.crop((x1, y1, x2, y2))
 
 
-def stretch_image(input_img:Image, stretch_area:float, stretch_scale:int, UP:bool, RIGHT:bool, DOWN:bool, LEFT:bool, width:int, height:int, exp_x:int, exp_y:int) -> Image:
+def stretch_image(
+    input_img: Image,
+    stretch_area: float,
+    stretch_scale: int,
+    UP: bool,
+    RIGHT: bool,
+    DOWN: bool,
+    LEFT: bool,
+    width: int,
+    height: int,
+    exp_x: int,
+    exp_y: int,
+) -> Image:
     """Stretch the {area} amount of image by {scale} to blur out the border"""
-
     new_width, new_height = input_img.size
 
     str_x = int(exp_x * stretch_area)
@@ -138,15 +171,27 @@ def stretch_image(input_img:Image, stretch_area:float, stretch_scale:int, UP:boo
     return input_img
 
 
-def process_mask(input_img:Image, directions:list, method:str, stretch_area:float, stretch_scale:int, expansion_X:float, expansion_Y:float, overlap:float, steps_S:int, steps_L:int) -> list:
+def process_mask(
+    input_img: Image,
+    directions: list,
+    method: str,
+    stretch_area: float,
+    stretch_scale: int,
+    expansion_X: float,
+    expansion_Y: float,
+    overlap: float,
+    steps_S: int,
+    steps_L: int,
+    blur: float,
+) -> list:
     """Main Function"""
     if input_img is None:
         return [None, None]
 
-    UP:bool = 'up' in directions
-    RIGHT:bool = 'right' in directions
-    DOWN:bool = 'down' in directions
-    LEFT:bool = 'left' in directions
+    UP: bool = "up" in directions
+    RIGHT: bool = "right" in directions
+    DOWN: bool = "down" in directions
+    LEFT: bool = "left" in directions
 
     DIRS = (UP, RIGHT, DOWN, LEFT)
 
@@ -161,30 +206,31 @@ def process_mask(input_img:Image, directions:list, method:str, stretch_area:floa
 
     input_img = preprocess_image(input_img, *DIRS, *OG_SIZE, *EXP_SIZE)
 
-    if method == 'stretch':
-        input_img = stretch_image(input_img, stretch_area, stretch_scale, *DIRS, *OG_SIZE, *EXP_SIZE)
+    if method == "stretch":
+        input_img = stretch_image(
+            input_img, stretch_area, stretch_scale, *DIRS, *OG_SIZE, *EXP_SIZE
+        )
 
-    mask = Image.new('L', input_img.size, 255)
+    mask = Image.new("L", input_img.size, 255)
     H = sum([RIGHT, LEFT])
     V = sum([UP, DOWN])
 
     block = Image.new(
-        'L',
-        (
-            int(width * (1.0 - (overlap * H))),
-            int(height * (1.0 - (overlap * V)))
-        )
+        "L", (int(width * (1.0 - (overlap * H))), int(height * (1.0 - (overlap * V))))
     )
 
     mask.paste(
         block,
         (
             0 if not LEFT else exp_x + int(width * overlap),
-            0 if not UP else exp_y + int(height * overlap)
-        )
+            0 if not UP else exp_y + int(height * overlap),
+        ),
     )
+
+    if blur > 0.0:
+        mask = mask.filter(ImageFilter.BoxBlur(blur))
 
     return [
         generate_mosaic(input_img, *DIRS, *OG_SIZE, *EXP_SIZE, steps_S, steps_L),
-        mask
+        mask,
     ]

@@ -1,3 +1,6 @@
+### v2.5 - 2024 May.13
+- Added Mask **Feathering** *(support **Soft Inpainting**)*
+
 ### v2.4 - 2024 Feb.29
 - Added Mosaic **Inpaint** Script
 
