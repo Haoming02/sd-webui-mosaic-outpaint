@@ -1,3 +1,6 @@
+### v2.6 - 2024 Aug.05
+- Fix **Send to ControlNet** Preview
+
 ### v2.5 - 2024 May.13
 - Added Mask **Feathering** *(support **Soft Inpainting**)*
 

@@ -38,12 +38,12 @@ function mos_img2cnet(mode, id) {
     if (img == null || mask == null)
         return;
 
-    var imageInput = null;
-    var maskInput = null;
+    var cnet_image = null;
+    var cnet_mask = null;
 
     try {
-        imageInput = gradioApp().getElementById(`${mode}2img_controlnet_ControlNet-${id}_input_image`).querySelector("input[type='file']");
-        maskInput = gradioApp().getElementById(`${mode}2img_controlnet_ControlNet-${id}_mask_image`).querySelector("input[type='file']");
+        cnet_image = gradioApp().getElementById(`${mode}2img_controlnet_ControlNet-${id}_input_image`);
+        cnet_mask = gradioApp().getElementById(`${mode}2img_controlnet_ControlNet-${id}_mask_image`);
     }
     catch {
         alert('Invalid ControlNet ID');
@@ -70,14 +70,14 @@ function mos_img2cnet(mode, id) {
 
     canvas.toBlob((blob) => {
         const file = new File(([blob]), "img.png");
-        mos_SetImage(imageInput, file);
+        mos_SetImage(cnet_image, file);
     });
 
     ctx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight);
 
     canvas.toBlob((blob) => {
         const file = new File(([blob]), "mask.png");
-        mos_SetImage(maskInput, file);
+        mos_SetImage(cnet_mask, file);
     });
 
     if (mode === 'txt')
@@ -88,7 +88,8 @@ function mos_img2cnet(mode, id) {
     canvas.remove();
 }
 
-function mos_SetImage(imageInput, file) {
+function mos_SetImage(cnet, file) {
+    const imageInput = cnet.querySelector("input[type='file']");
     const dt = new DataTransfer();
     dt.items.add(file);
 
@@ -99,6 +100,18 @@ function mos_SetImage(imageInput, file) {
         'bubbles': true,
         "composed": true
     }));
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        if (entries[0].intersectionRatio > 0) {
+            setTimeout(() => {
+                const clear_btn = cnet.querySelector("button[aria-label='Clear']");
+                clear_btn.click();
+            }, 50);
+            observer.disconnect()
+        }
+    }, { root: document.documentElement });
+
+    observer.observe(cnet);
 }
 
 onUiLoaded(async () => {

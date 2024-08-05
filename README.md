@@ -25,7 +25,6 @@ New <b>Mosaic</b> UI Tab
 #### ControlNet
 5. Alternatively: choose either **txt2img** or **img2img** tab, set the unit of ControlNet,
 then press **Send to ControlNet**
-    - Due to ControlNet's custom editor, the source image may not show up. Simply click the `Clear` button *(eraser icon)* to refresh it.
 6. Set **Control Type** to `Inpaint`
 7. Set **Preprocessor** to `inpaint_only+lama`
 8. Set **Control Mode** to `ControlNet is more important`
@@ -33,13 +32,13 @@ then press **Send to ControlNet**
 10. Press **Generate** !
 
 ## Parameters
-- **Directions:** The side of the image to expand 
+- **Directions:** The side of the image to expand
     - Selecting multiple sides is available
 - **Method:** The method used to fill out the expanded space
     - **stretch:** Strecth the border of the image outwards *(used in the original post)*
         - **Stretch %:** The percentage of the expanded area used to stretch
         - **Stretch Ratio:** The scale of the stretching
-    - **mirror:** Only mirror the image 
+    - **mirror:** Only mirror the image
 - **Horitontal Expand %:** How much to expand in horitonzal direction
 - **Vertical Expand %:** How much to expand in vertical direction
 - **Short-Side Tile Count:** The number of horizontal tiles when expanding horitonzally *(vice versa for vertical)*
@@ -66,7 +65,7 @@ Final Output
 </p>
 
 ## Mosaic Inpaint
-Now also comes with a **Script** for generating mosaic patterns within **Inpaint** masks. 
+Now also comes with a **Script** for generating mosaic patterns within **Inpaint** masks.
 *(Can also be used in **img2img** to convert the entire image into mosaic patterns before the generation.)*
 
 > See this [thread](https://github.com/Haoming02/sd-webui-mosaic-outpaint/issues/2) for some examples

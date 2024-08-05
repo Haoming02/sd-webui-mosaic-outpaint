@@ -155,7 +155,7 @@ def mos_ui():
                     cnet_id = gr.Number(0, label="ControlNet ID", precision=0)
                 cnet_send_btn = gr.Button("Send to ControlNet", variant="primary")
 
-                gr.Markdown('<p align="right"><sub>v2.5</sub></p>', elem_id="mos_ver")
+                gr.Markdown('<p align="right"><sub>v2.6</sub></p>', elem_id="mos_ver")
 
         input_img.change(img2input, input_img, infotext)
 
