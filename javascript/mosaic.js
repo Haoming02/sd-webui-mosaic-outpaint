@@ -88,8 +88,10 @@ function mos_img2cnet(mode, id) {
     canvas.remove();
 }
 
-function mos_SetImage(cnet, file) {
-    const imageInput = cnet.querySelector("input[type='file']");
+function mos_SetImage(element, file) {
+    const isCNet = (element.tagName !== "INPUT");
+    imageInput = (!isCNet) ? element : element.querySelector("input[type='file']");
+
     const dt = new DataTransfer();
     dt.items.add(file);
 
@@ -101,17 +103,20 @@ function mos_SetImage(cnet, file) {
         "composed": true
     }));
 
+    if (!isCNet)
+        return;
+
     const observer = new IntersectionObserver((entries, observer) => {
         if (entries[0].intersectionRatio > 0) {
             setTimeout(() => {
-                const clear_btn = cnet.querySelector("button[aria-label='Clear']");
+                const clear_btn = element.querySelector("button[aria-label='Clear']");
                 clear_btn.click();
             }, 50);
             observer.disconnect()
         }
     }, { root: document.documentElement });
 
-    observer.observe(cnet);
+    observer.observe(element);
 }
 
 onUiLoaded(async () => {
