@@ -1,21 +1,21 @@
-from modules.images import read_info_from_image
-from modules import script_callbacks
 import gradio as gr
-
 from scripts.mos_processing import process_mask
+
+from modules import script_callbacks
+from modules.images import read_info_from_image
 
 
 def img2input(img) -> str:
     if img is None:
-        return gr.HTML.update(value="")
+        return gr.update(value="")
 
     info, _ = read_info_from_image(img)
     if info is None:
-        return gr.HTML.update(value="")
+        return gr.update(value="")
 
     info = info.strip().replace("\n", "<br>")
 
-    return gr.HTML.update(
+    return gr.update(
         value=f"""
         <h5>Infotext</h5>
         <p style="
@@ -155,9 +155,9 @@ def mos_ui():
                     cnet_id = gr.Number(0, label="ControlNet ID", precision=0)
                 cnet_send_btn = gr.Button("Send to ControlNet", variant="primary")
 
-                gr.Markdown('<p align="right"><sub>v2.6</sub></p>', elem_id="mos_ver")
+                gr.Markdown('<p align="right"><sub>v2.7</sub></p>', elem_id="mos_ver")
 
-        input_img.change(img2input, input_img, infotext)
+        input_img.change(fn=img2input, inputs=[input_img], outputs=[infotext])
 
         proc_btn.click(
             process_mask,
@@ -177,10 +177,12 @@ def mos_ui():
             outputs=[output_img, mask],
         )
 
-        send_btn.click(None, None, None, _js="() => { mos_img2inpaint(); }")
+        send_btn.click(fn=None, _js="() => { mos_img2inpaint(); }")
 
         cnet_send_btn.click(
-            None, [cnet_mode, cnet_id], None, _js="(m, i) => { mos_img2cnet(m, i); }"
+            fn=None,
+            inputs=[cnet_mode, cnet_id],
+            _js="(m, i) => { mos_img2cnet(m, i); }",
         )
 
         for comp in [

@@ -1,13 +1,14 @@
-from modules.processing import process_images
-import modules.scripts as scripts
-from PIL import Image
 import gradio as gr
 import numpy as np
+from PIL import Image
+
+import modules.scripts as scripts
+from modules.processing import process_images
 
 
-def _mosaic(img, X, Y) -> Image:
+def _mosaic(img: Image.Image, x: int, y: int) -> Image.Image:
     """Helper function to generate the tiles"""
-    downsample = img.resize((X, Y), Image.Resampling.BOX)
+    downsample = img.resize((x, y), Image.Resampling.BOX)
     return downsample.resize(img.size, Image.Resampling.NEAREST)
 
 

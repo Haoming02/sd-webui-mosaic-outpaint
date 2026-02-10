@@ -1,14 +1,14 @@
-from PIL import Image, ImageOps, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 
 
-def _mosaic(img, X, Y) -> Image:
+def _mosaic(img: Image.Image, x: int, y: int) -> Image.Image:
     """Helper function to generate the tiles"""
-    downsample = img.resize((X, Y), Image.Resampling.BOX)
+    downsample = img.resize((x, y), Image.Resampling.BOX)
     return downsample.resize(img.size, Image.Resampling.NEAREST)
 
 
 def generate_mosaic(
-    input_img: Image,
+    input_img: Image.Image,
     UP: bool,
     RIGHT: bool,
     DOWN: bool,
@@ -19,7 +19,7 @@ def generate_mosaic(
     exp_y: int,
     steps_S: int,
     steps_L: int,
-) -> Image:
+) -> Image.Image:
     """Convert the expanded border(s) into mosaic tiles"""
     new_width, new_height = input_img.size
     steps_C = int((steps_S + steps_L) / 2)
@@ -33,10 +33,12 @@ def generate_mosaic(
         corner = input_img.crop((0, 0, lx, exp_y))
         corner = _mosaic(corner, steps_C, steps_C)
         input_img.paste(corner, (0, 0))
+
     if UP:
         edge = input_img.crop((lx, 0, rx, exp_y))
         edge = _mosaic(edge, steps_L, steps_S)
         input_img.paste(edge, (lx, 0))
+
     if UP and RIGHT:
         corner = input_img.crop((rx, 0, new_width, exp_y))
         corner = _mosaic(corner, steps_C, steps_C)
@@ -46,6 +48,7 @@ def generate_mosaic(
         edge = input_img.crop((0, uy, exp_x, dy))
         edge = _mosaic(edge, steps_S, steps_L)
         input_img.paste(edge, (0, uy))
+
     if RIGHT:
         edge = input_img.crop((rx, uy, new_width, dy))
         edge = _mosaic(edge, steps_S, steps_L)
@@ -55,10 +58,12 @@ def generate_mosaic(
         corner = input_img.crop((0, dy, lx, new_height))
         corner = _mosaic(corner, steps_C, steps_C)
         input_img.paste(corner, (0, dy))
+
     if DOWN:
         edge = input_img.crop((lx, dy, rx, new_height))
         edge = _mosaic(edge, steps_L, steps_S)
         input_img.paste(edge, (lx, dy))
+
     if DOWN and RIGHT:
         corner = input_img.crop((rx, dy, new_width, new_height))
         corner = _mosaic(corner, steps_C, steps_C)
@@ -68,7 +73,7 @@ def generate_mosaic(
 
 
 def preprocess_image(
-    input_img: Image,
+    input_img: Image.Image,
     UP: bool,
     RIGHT: bool,
     DOWN: bool,
@@ -77,7 +82,7 @@ def preprocess_image(
     height: int,
     exp_x: int,
     exp_y: int,
-) -> Image:
+) -> Image.Image:
     """Mirror the input image in the specified direction(s)"""
     H = sum([RIGHT, LEFT])
     V = sum([UP, DOWN])
@@ -122,7 +127,7 @@ def preprocess_image(
 
 
 def stretch_image(
-    input_img: Image,
+    input_img: Image.Image,
     stretch_area: float,
     stretch_scale: int,
     UP: bool,
@@ -133,7 +138,7 @@ def stretch_image(
     height: int,
     exp_x: int,
     exp_y: int,
-) -> Image:
+) -> Image.Image:
     """Stretch the {area} amount of image by {scale} to blur out the border"""
     new_width, new_height = input_img.size
 
@@ -172,7 +177,7 @@ def stretch_image(
 
 
 def process_mask(
-    input_img: Image,
+    input_img: Image.Image,
     directions: list,
     method: str,
     stretch_area: float,
@@ -183,7 +188,7 @@ def process_mask(
     steps_S: int,
     steps_L: int,
     blur: float,
-) -> list:
+) -> list[Image.Image]:
     """Main Function"""
     if input_img is None:
         return [None, None]

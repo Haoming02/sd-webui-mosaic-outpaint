@@ -1,3 +1,6 @@
+### v2.7 - 2026 Feb.10
+- Lint
+
 ### v2.6 - 2024 Aug.05
 - Fix **Send to ControlNet** Preview
 
