@@ -1,3 +1,6 @@
+### v2.8 - 2026 Feb.10
+- Added **Send to Inpaint**
+
 ### v2.7 - 2026 Feb.10
 - Lint
 

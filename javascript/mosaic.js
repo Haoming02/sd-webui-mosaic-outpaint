@@ -1,5 +1,28 @@
 ﻿function mos_img2inpaint() {
     const img = gradioApp().getElementById("mos_out").querySelector("img");
+    if (img == null) return;
+
+    const imageInputs = gradioApp().getElementById("img2img_inpaint_tab").querySelectorAll("input[type='file']");
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+    canvas.toBlob((blob) => {
+        const file = new File([blob], "img.png");
+        mos_SetImage(imageInputs[0], file);
+    });
+
+    switch_to_img2img_tab(2);
+
+    canvas.remove();
+}
+
+function mos_img2inpaintupload() {
+    const img = gradioApp().getElementById("mos_out").querySelector("img");
     const mask = gradioApp().getElementById("mos_mask").querySelector("img");
 
     if (img == null || mask == null) return;

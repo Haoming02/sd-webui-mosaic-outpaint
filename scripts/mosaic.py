@@ -148,14 +148,16 @@ def mos_ui():
 
             with gr.Column(scale=1):
                 proc_btn = gr.Button("Process Mosaic", variant="primary")
-                send_btn = gr.Button("Send to Inpaint", variant="primary")
+                with gr.Row():
+                    send_btn = gr.Button("Send to Inpaint", variant="primary")
+                    send_m_btn = gr.Button("Send to Inpaint Upload", variant="primary")
 
                 with gr.Row():
                     cnet_mode = gr.Radio(["txt", "img"], value="txt", label="Tab")
                     cnet_id = gr.Number(0, label="ControlNet ID", precision=0)
                 cnet_send_btn = gr.Button("Send to ControlNet", variant="primary")
 
-                gr.Markdown('<p align="right"><sub>v2.7</sub></p>', elem_id="mos_ver")
+                gr.Markdown('<p align="right"><sub>v2.8</sub></p>', elem_id="mos_ver")
 
         input_img.change(fn=img2input, inputs=[input_img], outputs=[infotext])
 
@@ -178,6 +180,7 @@ def mos_ui():
         )
 
         send_btn.click(fn=None, _js="() => { mos_img2inpaint(); }")
+        send_m_btn.click(fn=None, _js="() => { mos_img2inpaintupload(); }")
 
         cnet_send_btn.click(
             fn=None,
