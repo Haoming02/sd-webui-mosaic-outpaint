@@ -1,5 +1,5 @@
 import gradio as gr
-from scripts.mos_processing import process_mask
+from scripts.mos_processing import process_mask, process_mask_by_target_size
 
 from modules import script_callbacks
 from modules.images import read_info_from_image
@@ -62,6 +62,7 @@ def mos_ui():
             )
 
         with gr.Row():
+            # ---- Left column: direction / method / stretch ----
             with gr.Column(scale=1):
                 directions = gr.CheckboxGroup(
                     ["up", "right", "down", "left"],
@@ -96,6 +97,7 @@ def mos_ui():
 
                 method.change(on_radio_change, method, stretch_config)
 
+            # ---- Middle column: shared sliders + auto-expand inputs ----
             with gr.Column(scale=2):
                 with gr.Row():
                     with gr.Column():
@@ -144,10 +146,32 @@ def mos_ui():
                             value=0.15,
                         )
 
-                infotext = gr.HTML()
+                auto_expand_chk = gr.Checkbox(label="Auto Expand", value=False)
 
+                with gr.Row():
+                    target_w = gr.Number(
+                        label="Target Width",
+                        value=1024,
+                        precision=0,
+                        minimum=1,
+                        scale=3,
+                    )
+                    swap_btn = gr.Button("⇄", scale=1, size="sm", min_width=40)
+                    target_h = gr.Number(
+                        label="Target Height",
+                        value=1024,
+                        precision=0,
+                        minimum=1,
+                        scale=3,
+                    )
+                    get_size_btn = gr.Button("Get Current Image Size", scale=3, size="sm")
+
+            # ---- Right column: action buttons ----
             with gr.Column(scale=1):
                 proc_btn = gr.Button("Process Mosaic", variant="primary")
+
+                gr.Markdown("---")
+
                 with gr.Row():
                     send_btn = gr.Button("Send to Inpaint", variant="primary")
                     send_m_btn = gr.Button("Send to Inpaint Upload", variant="primary")
@@ -159,12 +183,55 @@ def mos_ui():
 
                 gr.Markdown('<p align="right"><sub>v2.8</sub></p>', elem_id="mos_ver")
 
+        # ---- Infotext at the bottom (full width) ----
+        infotext = gr.HTML()
+
+        # ---- Event bindings ----
+        def get_image_size(img):
+            if img is None:
+                return gr.update(), gr.update()
+            w, h = img.size
+            return gr.update(value=w), gr.update(value=h)
+
+        def swap_size(w, h):
+            return h, w
+
+        def process_unified(
+            img, auto_expand, dirs, meth, s_area, s_scale,
+            exp_x, exp_y, ovlp, st_s, st_l, bl,
+            tgt_w, tgt_h,
+        ):
+            """Dispatch to auto-expand by target size or normal directional expand."""
+            if auto_expand:
+                return process_mask_by_target_size(
+                    img, tgt_w, tgt_h, meth, s_area, s_scale,
+                    ovlp, st_s, st_l, bl,
+                )
+            else:
+                return process_mask(
+                    img, dirs, meth, s_area, s_scale,
+                    exp_x, exp_y, ovlp, st_s, st_l, bl,
+                )
+
+        get_size_btn.click(
+            fn=get_image_size,
+            inputs=[input_img],
+            outputs=[target_w, target_h],
+        )
+
+        swap_btn.click(
+            fn=swap_size,
+            inputs=[target_w, target_h],
+            outputs=[target_w, target_h],
+        )
+
         input_img.change(fn=img2input, inputs=[input_img], outputs=[infotext])
 
         proc_btn.click(
-            process_mask,
+            fn=process_unified,
             inputs=[
                 input_img,
+                auto_expand_chk,
                 directions,
                 method,
                 stretch_area,
@@ -175,6 +242,8 @@ def mos_ui():
                 steps_S,
                 steps_L,
                 blur,
+                target_w,
+                target_h,
             ],
             outputs=[output_img, mask],
         )
@@ -201,6 +270,9 @@ def mos_ui():
             steps_L,
             cnet_mode,
             cnet_id,
+            target_w,
+            target_h,
+            auto_expand_chk,
         ]:
             comp.do_not_save_to_config = True
 
